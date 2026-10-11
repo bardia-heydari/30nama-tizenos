@@ -23,26 +23,34 @@ A Netflix-style Samsung Tizen TV app: an unofficial client for your own 30nama.c
 | **Details** | **Search** |
 | ![Details](docs/images/details.png) | ![Search](docs/images/search.png) |
 
-## Requirements
+## Install
 
-- A Samsung Tizen TV (2018 or newer recommended) on the same network as your PC
-- [Tizen Studio](https://developer.tizen.org/development/tizen-studio/download) with the CLI tools and the TV extension
-- A Samsung developer certificate that includes your TV's DUID
-- Git Bash or another bash shell (the scripts target Windows + Git Bash; paths use `TIZEN_HOME`, default `/c/tizen-studio`)
+Every route needs the TV in Developer Mode: open Apps, type `12345`, switch Developer mode on, enter your PC's IP address, then reboot the TV.
 
-## Install on your TV
+### Option 1: TizenBrew (simplest)
 
-1. On the TV, enable Developer Mode: open Apps, type `12345`, switch Developer mode on and enter your PC's IP address. Reboot the TV.
-2. Run the guided setup, which connects to the TV, reads its DUID and walks you through creating a certificate and security profile:
-   ```
-   ./install-wizard.sh
-   ```
-   It stores your answers in `.wizard.env` (git-ignored).
-3. Or build and install manually:
-   ```
-   ./build.sh <security-profile> [<tv-ip>:26101]
-   ```
-   Without a target it only produces a signed `.wgt` in `dist/`. With a target it also installs and launches the app.
+1. Install [TizenBrew](https://github.com/reisxd/TizenBrew/blob/main/docs/README.md) on the TV with the TizenBrew Installer (one-time).
+2. In TizenBrew open Module Manager, Add GitHub Module, and enter `msharifi99/30nama-tizenos`.
+3. Launch "30nama" from the TizenBrew home screen.
+
+Nothing is built or signed by you. Playback uses the TV's HTML5 player here (AVPlay is not available inside TizenBrew). See [docs/TIZENBREW.md](docs/TIZENBREW.md) for details and what is untested.
+
+### Option 2: prebuilt .wgt
+
+1. Download `30nama-v*.wgt` from the [latest release](https://github.com/msharifi99/30nama-tizenos/releases/latest).
+2. Install [Apps2Samsung](https://github.com/Apps2Samsung/Apps2Samsung/releases/latest) (Windows, Linux, macOS or Android). It handles your Samsung certificate and re-signs the package for your TV.
+3. In Apps2Samsung select your TV, choose a custom `.wgt`, pick the downloaded file and install. Tizen 7+ TVs ask you to sign in to a Samsung account once to create a certificate.
+
+### Option 3: build from source
+
+Requires [Tizen Studio](https://developer.tizen.org/development/tizen-studio/download) (CLI tools + TV extension), a Samsung certificate that includes your TV's DUID, and Git Bash (the scripts target Windows + Git Bash; `TIZEN_HOME` defaults to `/c/tizen-studio`).
+
+```
+./install-wizard.sh                              # guided: reads the DUID, creates certificate and profile
+./build.sh <security-profile> [<tv-ip>:26101]    # manual build; with a target it also installs and launches
+```
+
+The wizard stores your answers in `.wizard.env` (git-ignored). Without a target, `build.sh` only produces a signed `.wgt` in `dist/`.
 
 ## Optional: TMDB setup
 
@@ -73,7 +81,9 @@ Then open http://localhost:8080/. The proxy forwards API and HLS requests to avo
 ```
 tizen-app/    the Tizen web app (config.xml, index.html, js/, css/, fonts/, tools/)
 design/       design spec
-docs/images/  README screenshots
+docs/        README screenshots, TizenBrew notes
+package.json TizenBrew module manifest
+.github/     release workflow (builds the .wgt on v* tags)
 media/        poster
 build.sh      build, sign and install
 install-wizard.sh  guided TV setup
